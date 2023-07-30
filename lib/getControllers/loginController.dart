@@ -8,4 +8,5 @@ class LoginSignUpController extends GetxController {
   //signup
   var regEmail = "".obs;
   var regPassword = "".obs;
+  var regName="".obs;
 }

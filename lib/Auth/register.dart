@@ -10,6 +10,9 @@ RichText(
       ),
     );
     */
+import 'package:chatmassegeapp/Auth/login.dart';
+import 'package:chatmassegeapp/Firebase/firebase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,166 +32,264 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
-    final loginController = Get.find<LoginSignUpController>();
+    final loginController = Get.put(LoginSignUpController());
 
-    loginController.email.value = "";
-    loginController.password.value = "";
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(
-            height: h * 0.1,
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 24.0, color: Colors.black),
-              children: <TextSpan>[
-                TextSpan(
-                    text: 'Hello ',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(
-                    text: 'Beautiful',
-                    style: TextStyle(color: Colors.deepOrange)),
-                TextSpan(
-                    text: ' .', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: h * 0.1,
-          ),
-          Form(
-            key: _regFormKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter Email',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Obx(
+              () => Column(
+                children: [
+                  SizedBox(
+                    height: 0.1,
+                  ),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          loginController.currentPageInd.value = 0;
+                          Get.delete<LoginSignUpController>();
+                          Get.offAll(() => LoginPage(),
+                              transition: Transition.rightToLeftWithFade,
+                              duration: Duration(seconds: 1));
+                        },
+                        child: Container(
+                          width: w * 0.2,
+                          child: Column(
+                            children: [
+                              Text("Login"),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              loginController.currentPageInd.value == 0
+                                  ? Divider(
+                                      color: Colors.black,
+                                    )
+                                  : SizedBox()
+                            ],
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          // loginController.currentPageInd.value = 1;
+                          // Get.to(() => RegisterPage(),
+                          //     transition: Transition.leftToRightWithFade,
+                          //     duration: Duration(seconds: 1));
+                        },
+                        child: Container(
+                          width: w * 0.2,
+                          child: Column(
+                            children: [
+                              Text("Sign Up"),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              loginController.currentPageInd.value == 1
+                                  ? Divider(
+                                      color: Colors.black,
+                                    )
+                                  : SizedBox()
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: h * 0.1,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 24.0, color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: 'Hello ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text: 'Beautiful',
+                            style: TextStyle(color: Colors.deepOrange)),
+                        TextSpan(
+                            text: ' .',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
                     ),
                   ),
-                  onChanged: (value) {
-                    loginController.regEmail.value = value;
-                  },
-                  validator: (value) {
-                    if (MyFunctions().checkIsEmailValid(value!)) {
-                      return null;
-                    } else {
-                      return "Email not Valid";
-                    }
-                  },
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter Password',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
+                  SizedBox(
+                    height: h * 0.1,
+                  ),
+                  Form(
+                    key: _regFormKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter Name',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            loginController.regName.value = value;
+                          },
+                          validator: (value) {
+                            if (value!.length>5 ) {
+                              return null;
+                            } else {
+                              return "Name not Valid";
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter Email',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            loginController.regEmail.value = value;
+                          },
+                          validator: (value) {
+                            if (MyFunctions().checkIsEmailValid(value!)) {
+                              return null;
+                            } else {
+                              return "Email not Valid";
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter Password',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            loginController.regPassword.value = value;
+                          },
+                          validator: (value) {
+                            if (value!.length < 5 || value.length > 8) {
+                              return "Password length should be 5-8 long";
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Confirm Password',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            // loginController.regPassword.value = value;
+                          },
+                          validator: (value) {
+                            if (value!.length < 5 || value.length > 8) {
+                              return "Password length should be 5-8 long";
+                            }
+                            if (value.length <= 8 && value.length >= 5) {
+                              if (value == loginController.regPassword.value) {
+                                return null;
+                              } else {
+                                return "Password Doesn't Matched ";
+                              }
+                            }
+                            return null;
+                          },
+                        )
+                      ],
                     ),
                   ),
-                  onChanged: (value) {
-                    loginController.regPassword.value = value;
-                  },
-                  validator: (value) {
-                    if (value!.length < 5 || value.length > 8) {
-                      return "Password length should be 5-8 long";
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Confirm Password',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
-                    ),
+                  SizedBox(
+                    height: h * 0.04,
                   ),
-                  onChanged: (value) {
-                    // loginController.regPassword.value = value;
-                  },
-                  validator: (value) {
-                    if (value!.length < 5 || value.length > 8) {
-                      return "Password length should be 5-8 long";
-                    }
-                    if (value.length <= 8 && value.length >= 5) {
-                      if (value == loginController.regPassword.value) {
-                        return null;
-                      } else {
-                        return "Password Doesn't Matched ";
-                      }
-                    }
-                    return null;
-                  },
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: h * 0.04,
-          ),
-          Row(
-            children: [
-              Icon(Icons.facebook_outlined),
-              InkWell(
-                onTap: () {
-                  //TODO: Login via Google
-                },
-                child: Image.asset(
-                  "assets/google.jfif",
-                  height: h * 0.03,
-                  width: w * 0.3,
-                ),
-              )
-            ],
-          ),
-          SizedBox(
-            height: h * 0.2,
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: InkWell(
-              onTap: () {
-                //TODO: Verify Login
+                  Row(
+                    children: [
+                      Icon(Icons.facebook_outlined),
+                      InkWell(
+                        onTap: () {
+                          //TODO: Login via Google
+                        },
+                        child: Image.asset(
+                          "assets/google.jfif",
+                          height: h * 0.03,
+                          width: w * 0.3,
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: h * 0.1,
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: InkWell(
+                      onTap: () async {
+                        CircularProgressIndicator();
+                        if (_regFormKey.currentState!.validate()) {
+                          User? user = await MyFirebase()
+                              .registerWithEmailPassword(
+                                  loginController.regEmail.value,
+                                  loginController.regPassword.value,
+                                  loginController.regName.value);
+                          if (user != null) {
+                            loginController.currentPageInd.value = 0;
+                            Get.delete<LoginSignUpController>();
 
-                if (_regFormKey.currentState!.validate()) {
-                  //TODo: Login user
-                }
-              },
-              child: Container(
-                margin: EdgeInsets.all(10),
-                constraints:
-                    BoxConstraints(minHeight: h * 0.04, maxWidth: w * 0.2),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.deepPurple[300]),
-                child: Center(
-                  child: Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
-                  ),
-                ),
+                            Get.to(() => LoginPage());
+                          }
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        constraints: BoxConstraints(
+                            minHeight: h * 0.04, maxWidth: w * 0.2),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.deepPurple[300]),
+                        child: Center(
+                          child: Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
