@@ -81,7 +81,7 @@ class MyFirebase {
           "isOnline": true,
           "id": value.id
         });
-        Get.to(() => HomePage());
+        Get.offAll(() => HomePage());
       } else {
         Fluttertoast.showToast(msg: "Failed to login");
       }
@@ -114,84 +114,88 @@ class MyFirebase {
   }
 
   UpdateUserLastSeen(String chatRoomId, List participants) async {
-    final userID = FirebaseAuth.instance.currentUser!.uid;
+    try {
+      final userID = FirebaseAuth.instance.currentUser!.uid;
 
-    final chatroomData = await FirebaseFirestore.instance
-        .collection("chats")
-        .doc(chatRoomId)
-        .get();
+      final chatroomData = await FirebaseFirestore.instance
+          .collection("chats")
+          .doc(chatRoomId)
+          .get();
 
-    var userCol1 = await FirebaseFirestore.instance
-        .collection("users")
-        .where('id', isEqualTo: participants[0])
-        .get();
-    var userCol2 = await FirebaseFirestore.instance
-        .collection("users")
-        .where('id', isEqualTo: participants[1])
-        .get();
-    if (chatroomData.exists) {
-      if (participants[0] == userID) {
-        var user1NAme = userCol1.docs.first.data()["name"];
-        var user2NAme = userCol2.docs.first.data()["name"];
-        var user1LastSeen = DateTime.now();
-        await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatRoomId)
-            .update({
-          'user1LastSeen': user1LastSeen,
-          'user1Name': user1NAme,
-          'user2Name': user2NAme,
-          'chatroomId': chatRoomId,
-          'participants': participants
-        });
+      var userCol1 = await FirebaseFirestore.instance
+          .collection("users")
+          .where('id', isEqualTo: participants[0])
+          .get();
+      var userCol2 = await FirebaseFirestore.instance
+          .collection("users")
+          .where('id', isEqualTo: participants[1])
+          .get();
+      if (chatroomData.exists) {
+        if (participants[0] == userID) {
+          var user1NAme = userCol1.docs.first.data()["name"];
+          var user2NAme = userCol2.docs.first.data()["name"];
+          var user1LastSeen = DateTime.now();
+          await FirebaseFirestore.instance
+              .collection("chats")
+              .doc(chatRoomId)
+              .update({
+            'user1LastSeen': user1LastSeen,
+            'user1Name': user1NAme,
+            'user2Name': user2NAme,
+            'chatroomId': chatRoomId,
+            'participants': participants
+          });
+        } else {
+          var user1NAme = userCol1.docs.first.data()["name"];
+          var user2NAme = userCol2.docs.first.data()["name"];
+          var user2LastSeen = DateTime.now();
+          await FirebaseFirestore.instance
+              .collection("chats")
+              .doc(chatRoomId)
+              .update({
+            'user2LastSeen': user2LastSeen,
+            'user1Name': user1NAme,
+            'user2Name': user2NAme,
+            'chatroomId': chatRoomId,
+            'participants': participants
+          });
+        }
       } else {
         var user1NAme = userCol1.docs.first.data()["name"];
         var user2NAme = userCol2.docs.first.data()["name"];
-        var user2LastSeen = DateTime.now();
-        await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatRoomId)
-            .update({
-          'user2LastSeen': user2LastSeen,
-          'user1Name': user1NAme,
-          'user2Name': user2NAme,
-          'chatroomId': chatRoomId,
-          'participants': participants
-        });
-      }
-    } else {
-      var user1NAme = userCol1.docs.first.data()["name"];
-      var user2NAme = userCol2.docs.first.data()["name"];
-      if (participants[0] == userID) {
-        var user1LastSeen = DateTime.now();
-        var user2LastSeen = "";
+        if (participants[0] == userID) {
+          var user1LastSeen = DateTime.now();
+          var user2LastSeen = "";
 
-        await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatRoomId)
-            .set({
-          'user1LastSeen': user1LastSeen,
-          'user2LastSeen': user2LastSeen,
-          'user1Name': user1NAme,
-          'user2Name': user2NAme,
-          'chatroomId': chatRoomId,
-          'participants': participants
-        });
-      } else {
-        var user2LastSeen = DateTime.now();
-        var user1LastSeen = '';
-        await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatRoomId)
-            .set({
-          'user1LastSeen': user1LastSeen,
-          'user2LastSeen': user2LastSeen,
-          'user1Name': user1NAme,
-          'user2Name': user2NAme,
-          'chatroomId': chatRoomId,
-          'participants': participants
-        });
+          await FirebaseFirestore.instance
+              .collection("chats")
+              .doc(chatRoomId)
+              .set({
+            'user1LastSeen': user1LastSeen,
+            'user2LastSeen': user2LastSeen,
+            'user1Name': user1NAme,
+            'user2Name': user2NAme,
+            'chatroomId': chatRoomId,
+            'participants': participants
+          });
+        } else {
+          var user2LastSeen = DateTime.now();
+          var user1LastSeen = '';
+          await FirebaseFirestore.instance
+              .collection("chats")
+              .doc(chatRoomId)
+              .set({
+            'user1LastSeen': user1LastSeen,
+            'user2LastSeen': user2LastSeen,
+            'user1Name': user1NAme,
+            'user2Name': user2NAme,
+            'chatroomId': chatRoomId,
+            'participants': participants
+          });
+        }
       }
+    }catch(e){
+      print("error e:$e");
     }
   }
 
@@ -337,7 +341,8 @@ class MyFirebase {
 
   // Store Images to storage
 
-  sendImageAsChat(File pickedFile, String chatRoomID, String receiverID,List participants) async {
+  sendImageAsChat(File pickedFile, String chatRoomID, String receiverID,
+      List participants) async {
     final FirebaseStorage storage = FirebaseStorage.instance;
     final Reference chatImagesRef = storage.ref().child('chat_images');
 
@@ -349,7 +354,6 @@ class MyFirebase {
     await imageRef.putFile(imageFile);
     final imageDownloadUrl = await imageRef.getDownloadURL();
     try {
-
       final snap = await FirebaseFirestore.instance
           .collection("chats")
           .doc(chatRoomID)
@@ -360,7 +364,8 @@ class MyFirebase {
         final unreadCountOfuser2 =
             await snap.data()!["unreadCountOfUser2"] ?? 0;
 
-        await FirebaseFirestore.instance.collection("chats")
+        await FirebaseFirestore.instance
+            .collection("chats")
             .doc(chatRoomID)
             .set({
           "chatroomId": chatRoomID,
@@ -387,7 +392,7 @@ class MyFirebase {
           "isSeen": false,
           "updatedAt": DateTime.now(),
         });
-      }else{
+      } else {
         final userId = FirebaseAuth.instance.currentUser!.uid;
         FirebaseFirestore.instance.collection("chats").doc(chatRoomID).set({
           "chatroomId": chatRoomID,
@@ -412,7 +417,6 @@ class MyFirebase {
           "isSeen": false,
           "updatedAt": DateTime.now(),
         });
-
       }
       Fluttertoast.showToast(msg: "Message Sent");
     } catch (e) {

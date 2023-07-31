@@ -21,7 +21,7 @@ class ChatPage extends StatefulWidget {
   const ChatPage(
       {required this.chatRoomId,
       required this.receiverID,
-        required this.receiverName,
+      required this.receiverName,
       required this.participants});
 
   @override
@@ -108,8 +108,10 @@ class _ChatPageState extends State<ChatPage> {
     final w = MediaQuery.of(context).size.width;
     print("chatRoom ID : ${widget.chatRoomId}");
     return Scaffold(
+        backgroundColor: Color.fromRGBO(5, 17, 59, 1),
         appBar: AppBar(
-          backgroundColor: Colors.deepOrange,
+          elevation: 0,
+          backgroundColor: Color.fromRGBO(5, 17, 59, 1),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -201,15 +203,22 @@ class _ChatPageState extends State<ChatPage> {
                                             : w * 0.4),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(8),
-                                        color: boolValue
-                                            ? Colors.grey[200]
-                                            : Colors.orange.withOpacity(0.6)),
+                                        color: !boolValue
+                                            ? Color.fromRGBO(19, 37, 77, 1)
+                                            : Color.fromRGBO(73, 208, 238, 1)),
                                     child: Center(
                                       child: Row(children: [
                                         Expanded(
                                             child: chatList[ind].image.isEmpty
                                                 ? Text(
                                                     "${chatList[ind].text}",
+                                                    style: TextStyle(
+                                                        color: boolValue
+                                                            ? Color.fromRGBO(
+                                                                5, 17, 59, 1)
+                                                            : Colors.white
+                                                                .withOpacity(
+                                                                    0.5)),
                                                     maxLines: 50,
                                                   )
                                                 : Container(
@@ -223,7 +232,13 @@ class _ChatPageState extends State<ChatPage> {
                                           width: 5,
                                         ),
                                         Text(
-                                            "${DateFormat('h:mm a').format(chatList[ind].timestamp)}")
+                                            "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",style: TextStyle(
+                                            color: boolValue
+                                                ? Color.fromRGBO(
+                                                5, 17, 59, 1)
+                                                : Colors.white
+                                                .withOpacity(
+                                                0.5)))
                                       ]),
                                     ),
                                   ),
@@ -236,7 +251,9 @@ class _ChatPageState extends State<ChatPage> {
                 constraints: BoxConstraints(maxHeight: h * 0.08),
                 margin: EdgeInsets.all(15),
                 padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(border: Border.all()),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Color.fromRGBO(19, 37, 77, 1)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -251,12 +268,12 @@ class _ChatPageState extends State<ChatPage> {
                                       File(pickedImg.path),
                                       widget.chatRoomId,
                                       widget.receiverID,
-                              widget.participants
-                              )
+                                      widget.participants)
                                   : null;
                             },
                             icon: Icon(
                               Icons.photo,
+                              color: Colors.white,
                               size: 22,
                             ))),
                     Container(
@@ -264,23 +281,32 @@ class _ChatPageState extends State<ChatPage> {
                           maxHeight: h * 0.08, maxWidth: w * 0.73),
                       child: TextFormField(
                         controller: textController,
+                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
                         decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintStyle:
+                                TextStyle(color: Colors.white.withOpacity(0.5)),
                             hintText: "Type here",
-                            suffixIcon: IconButton(
-                                onPressed: () async {
-                                  if (textController.text.isNotEmpty) {
-                                    await MyFirebase().sendMessage(
-                                        widget.chatRoomId,
-                                        textController.text,
-                                        widget.receiverID,
-                                        widget.participants);
-                                    textController.clear();
-                                  }
-                                },
-                                icon: Icon(
-                                  Icons.send,
-                                  color: Colors.orange,
-                                ))),
+                            suffixIcon: CircleAvatar(
+                              radius: 4,
+                              backgroundColor: Color.fromRGBO(73, 208, 238, 1),
+                              child: IconButton(
+                                  onPressed: () async {
+                                    if (textController.text.isNotEmpty) {
+                                      await MyFirebase().sendMessage(
+                                          widget.chatRoomId,
+                                          textController.text,
+                                          widget.receiverID,
+                                          widget.participants);
+                                      textController.clear();
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.send,
+                                    size: 17,
+                                    color: Colors.white,
+                                  )),
+                            )),
                       ),
                     ),
                   ],
