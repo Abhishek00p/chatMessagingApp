@@ -37,6 +37,13 @@
             {
               "client_id": "264990578326-2cij6tf9cm5q4v5snds0bmflc522peje.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "264990578326-ufkpjrueii0j0b4gs385mhi38mpphct6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatmassegeapp"
+              }
             }
           ]
         }

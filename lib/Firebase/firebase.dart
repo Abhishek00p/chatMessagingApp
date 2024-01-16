@@ -4,6 +4,7 @@ import 'package:chatmassegeapp/Screen/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -194,7 +195,7 @@ class MyFirebase {
           });
         }
       }
-    }catch(e){
+    } catch (e) {
       print("error e:$e");
     }
   }
@@ -421,6 +422,108 @@ class MyFirebase {
       Fluttertoast.showToast(msg: "Message Sent");
     } catch (e) {
       print("eeeeeeeeeee- $e");
+    }
+  }
+
+  Future<bool> sendImageAndText({
+    required File pickedFile,
+    required String chatRoomID,
+    required String receiverID,
+    required List participants,
+    required String textMessage,
+  }) async {
+    Fluttertoast.showToast(msg: 'processing image..');
+    final String imageUrl = await getDownloadLinkForChatFile(file: pickedFile);
+    final snap = await FirebaseFirestore.instance
+        .collection("chats")
+        .doc(chatRoomID)
+        .get();
+    try {
+      if (snap.exists && imageUrl.isNotEmpty) {
+        final unreadCountOfuser1 =
+            await snap.data()!["unreadCountOfUser1"] ?? 0;
+        final unreadCountOfuser2 =
+            await snap.data()!["unreadCountOfUser2"] ?? 0;
+
+        await FirebaseFirestore.instance
+            .collection("chats")
+            .doc(chatRoomID)
+            .set({
+          "chatroomId": chatRoomID,
+          "participants": participants,
+          "lastMessage": textMessage,
+          "lastMessageTimestamp": DateTime.now(),
+          "unreadCountOfUser1": participants[0] == receiverID
+              ? unreadCountOfuser1 + 1
+              : unreadCountOfuser1,
+          "unreadCountOfUser2": participants[1] == receiverID
+              ? unreadCountOfuser2 + 1
+              : unreadCountOfuser2,
+        });
+        var chatroom = FirebaseFirestore.instance
+            .collection("chats")
+            .doc(chatRoomID)
+            .collection("messages");
+        await chatroom.doc().set({
+          "senderId": FirebaseAuth.instance.currentUser!.uid,
+          "receiverId": receiverID,
+          "text": textMessage,
+          "image": imageUrl,
+          "timestamp": DateTime.now(),
+          "isSeen": false,
+          "updatedAt": DateTime.now(),
+        });
+        return true;
+      } else if (imageUrl.isNotEmpty) {
+        final userId = FirebaseAuth.instance.currentUser!.uid;
+        FirebaseFirestore.instance.collection("chats").doc(chatRoomID).set({
+          "chatroomId": chatRoomID,
+          "participants": participants,
+          "lastMessage": textMessage,
+          "lastMessageTimestamp": DateTime.now(),
+          "unreadCountOfUser1": userId == participants[0] ? 1 : 0,
+          "unreadCountOfUser2": userId == participants[1] ? 1 : 0,
+          "user1LastSeen": userId == participants[0] ? DateTime.now() : "",
+          "user2LastSeen": userId == participants[1] ? DateTime.now() : "",
+        });
+        var chatroom = FirebaseFirestore.instance
+            .collection("chats")
+            .doc(chatRoomID)
+            .collection("messages");
+        await chatroom.doc().set({
+          "senderId": userId,
+          "receiverId": receiverID,
+          "text": textMessage,
+          "image": imageUrl,
+          "timestamp": DateTime.now(),
+          "isSeen": false,
+          "updatedAt": DateTime.now(),
+        });
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Failed to send image and text :$e');
+      return false;
+    }
+  }
+
+  Future<String> getDownloadLinkForChatFile({required File file}) async {
+    try {
+      final FirebaseStorage storage = FirebaseStorage.instance;
+      final Reference chatImagesRef = storage.ref().child('chat_images');
+
+      final imageFile = File(file.path);
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final imageName = 'image_$timestamp.jpg';
+      final imageRef = chatImagesRef.child(imageName);
+      // Fluttertoast.showToast(msg: "sending Image...");
+      await imageRef.putFile(imageFile);
+      return await imageRef.getDownloadURL();
+    } catch (e) {
+      debugPrint('Failed to upload image :$e');
+      return '';
     }
   }
 }

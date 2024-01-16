@@ -108,212 +108,336 @@ class _ChatPageState extends State<ChatPage> {
     final w = MediaQuery.of(context).size.width;
     print("chatRoom ID : ${widget.chatRoomId}");
     return Scaffold(
+      backgroundColor: Color.fromRGBO(5, 17, 59, 1),
+      appBar: AppBar(
+        elevation: 0,
         backgroundColor: Color.fromRGBO(5, 17, 59, 1),
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Color.fromRGBO(5, 17, 59, 1),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "${widget.receiverName}",
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              SizedBox(height: 3),
-              StreamBuilder(
-                stream: chatController.fetchReceiverData(
-                    widget.receiverID, widget.chatRoomId, widget.participants),
-                builder: (context, AsyncSnapshot snapshot) {
-                  print("lastseen Stream  : ${snapshot.data}");
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Text(
-                      "Loading..",
-                      style: TextStyle(color: Colors.white, fontSize: 11),
-                    );
-                  }
-                  if (snapshot.hasError || snapshot.data == null) {
-                    return Text("eror");
-                  }
-                  if (snapshot.data!.isEmpty) {
-                    return SizedBox();
-                  }
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "${widget.receiverName}",
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 3),
+            StreamBuilder(
+              stream: chatController.fetchReceiverData(
+                  widget.receiverID, widget.chatRoomId, widget.participants),
+              builder: (context, AsyncSnapshot snapshot) {
+                print("lastseen Stream  : ${snapshot.data}");
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Text(
-                    snapshot.data.toString(),
+                    "Loading..",
                     style: TextStyle(color: Colors.white, fontSize: 11),
                   );
-                },
-              ),
-            ],
-          ),
+                }
+                if (snapshot.hasError || snapshot.data == null) {
+                  return Text("eror");
+                }
+                if (snapshot.data!.isEmpty) {
+                  return SizedBox();
+                }
+                return Text(
+                  snapshot.data.toString(),
+                  style: TextStyle(color: Colors.white, fontSize: 11),
+                );
+              },
+            ),
+          ],
         ),
-        body: Container(
-          height: h,
-          width: w,
-          child: Column(
-            children: [
-              Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream: MyFirebase().getAllChatsOFRoom(widget.chatRoomId),
-                      builder:
-                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
-                        }
-                        if (snapshot.data == null) {
-                          return Center(
-                            child: Text("No chats available"),
-                          );
-                        }
+      ),
+      body: Container(
+        height: h,
+        width: w,
+        child: Column(
+          children: [
+            Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: MyFirebase().getAllChatsOFRoom(widget.chatRoomId),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+                      if (snapshot.data == null ||
+                          snapshot.data!.docs.isEmpty) {
+                        return Center(
+                          child: Text("No chats available"),
+                        );
+                      }
 
-                        final List docs = snapshot.data!.docs;
-                        //
-                        List<ChatModel> chatList = docs
-                            .map((e) => ChatModel.fromJson(
-                                e.data() as Map<String, dynamic>))
-                            .toList();
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: chatList.length,
-                            itemBuilder: (context, ind) {
-                              var boolValue = chatList[ind].senderId ==
-                                  FirebaseAuth.instance.currentUser!.uid;
-                              chatList.sort(
-                                  (a, b) => a.timestamp.compareTo(b.timestamp));
-                              return Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Align(
-                                  alignment: boolValue
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 10),
-                                    constraints: BoxConstraints(
-                                        minHeight: h * 0.04,
-                                        minWidth: w * 0.02,
-                                        maxWidth: chatList[ind].text.length >
-                                                    20 ||
-                                                chatList[ind].image.length > 20
-                                            ? w * 0.6
-                                            : w * 0.4),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: !boolValue
-                                            ? Color.fromRGBO(19, 37, 77, 1)
-                                            : Color.fromRGBO(73, 208, 238, 1)),
-                                    child: Center(
-                                      child: Row(children: [
-                                        Expanded(
-                                            child: chatList[ind].image.isEmpty
-                                                ? Text(
-                                                    "${chatList[ind].text}",
-                                                    style: TextStyle(
-                                                        color: boolValue
-                                                            ? Color.fromRGBO(
-                                                                5, 17, 59, 1)
-                                                            : Colors.white
-                                                                .withOpacity(
-                                                                    0.5)),
-                                                    maxLines: 50,
-                                                  )
-                                                : Container(
-                                                    height: h * 0.25,
-                                                    width: w * 0.4,
-                                                    child: Image.network(
-                                                        chatList[ind].image,
-                                                        fit: BoxFit.fill),
-                                                  )),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                            "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",style: TextStyle(
-                                            color: boolValue
-                                                ? Color.fromRGBO(
-                                                5, 17, 59, 1)
-                                                : Colors.white
-                                                .withOpacity(
-                                                0.5)))
-                                      ]),
-                                    ),
+                      final List docs = snapshot.data!.docs;
+                      //
+                      List<ChatModel> chatList = docs
+                          .map((e) => ChatModel.fromJson(
+                              e.data() as Map<String, dynamic>))
+                          .toList();
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: chatList.length,
+                          itemBuilder: (context, ind) {
+                            var boolValue = chatList[ind].senderId ==
+                                FirebaseAuth.instance.currentUser!.uid;
+                            chatList.sort(
+                                (a, b) => a.timestamp.compareTo(b.timestamp));
+                            return Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Align(
+                                alignment: boolValue
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 10),
+                                  constraints: BoxConstraints(
+                                      minHeight: h * 0.04,
+                                      minWidth: w * 0.02,
+                                      maxWidth: chatList[ind].text.length >
+                                                  20 ||
+                                              chatList[ind].image.length > 20
+                                          ? w * 0.6
+                                          : w * 0.4),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: !boolValue
+                                          ? Color.fromRGBO(19, 37, 77, 1)
+                                          : Color.fromRGBO(73, 208, 238, 1)),
+                                  child: Center(
+                                    child: Row(children: [
+                                      Expanded(
+                                          child: chatList[ind].image.isEmpty
+                                              ? Text(
+                                                  "${chatList[ind].text}",
+                                                  style: TextStyle(
+                                                      color: boolValue
+                                                          ? Color.fromRGBO(
+                                                              5, 17, 59, 1)
+                                                          : Colors.white
+                                                              .withOpacity(
+                                                                  0.5)),
+                                                  maxLines: 50,
+                                                )
+                                              : chatList[ind].text.isEmpty &&
+                                                      chatList[ind]
+                                                          .image
+                                                          .trim()
+                                                          .isNotEmpty
+                                                  ? Container(
+                                                      height: h * 0.25,
+                                                      width: w * 0.4,
+                                                      child: Image.network(
+                                                          chatList[ind].image,
+                                                          fit: BoxFit.fill),
+                                                    )
+                                                  : Column(
+                                                      children: [
+                                                        Container(
+                                                          height: h * 0.25,
+                                                          width: w * 0.4,
+                                                          child: Image.network(
+                                                              chatList[ind]
+                                                                  .image,
+                                                              fit: BoxFit.fill),
+                                                        ),
+                                                        Text(
+                                                          "${chatList[ind].text}",
+                                                          style: TextStyle(
+                                                              color: boolValue
+                                                                  ? Color
+                                                                      .fromRGBO(
+                                                                          5,
+                                                                          17,
+                                                                          59,
+                                                                          1)
+                                                                  : Colors.white
+                                                                      .withOpacity(
+                                                                          0.5)),
+                                                          maxLines: 50,
+                                                        )
+                                                      ],
+                                                    )),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                          "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",
+                                          style: TextStyle(
+                                              color: boolValue
+                                                  ? Color.fromRGBO(5, 17, 59, 1)
+                                                  : Colors.white
+                                                      .withOpacity(0.5)))
+                                    ]),
                                   ),
                                 ),
-                              );
-                            });
-                      })),
-              Container(
+                              ),
+                            );
+                          });
+                    })),
+            Obx(
+              () => Container(
+                height:
+                    chatController.showImagePreview.value ? h * 0.4 : h * 0.1,
                 width: w,
-                constraints: BoxConstraints(maxHeight: h * 0.08),
-                margin: EdgeInsets.all(15),
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Color.fromRGBO(19, 37, 77, 1)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Stack(
                   children: [
-                    Container(
-                        width: w * 0.1,
-                        child: IconButton(
-                            onPressed: () async {
-                              final pickedImg = await ImagePicker()
-                                  .pickImage(source: ImageSource.gallery);
-                              pickedImg != null
-                                  ? await MyFirebase().sendImageAsChat(
-                                      File(pickedImg.path),
-                                      widget.chatRoomId,
-                                      widget.receiverID,
-                                      widget.participants)
-                                  : null;
-                            },
-                            icon: Icon(
-                              Icons.photo,
-                              color: Colors.white,
-                              size: 22,
-                            ))),
-                    Container(
-                      constraints: BoxConstraints(
-                          maxHeight: h * 0.08, maxWidth: w * 0.73),
-                      child: TextFormField(
-                        controller: textController,
-                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintStyle:
-                                TextStyle(color: Colors.white.withOpacity(0.5)),
-                            hintText: "Type here",
-                            suffixIcon: CircleAvatar(
-                              radius: 4,
-                              backgroundColor: Color.fromRGBO(73, 208, 238, 1),
-                              child: IconButton(
-                                  onPressed: () async {
-                                    if (textController.text.isNotEmpty) {
-                                      await MyFirebase().sendMessage(
-                                          widget.chatRoomId,
-                                          textController.text,
-                                          widget.receiverID,
-                                          widget.participants);
-                                      textController.clear();
-                                    }
+                    chatController.showImagePreview.value
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                color: Colors.green,
+                                height: h * 0.2,
+                                width: w * 0.4,
+                                child: Image.file(
+                                  chatController.imageFile.value,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              IconButton(
+                                  onPressed: () {
+                                    chatController.updateImageFile(null);
                                   },
-                                  icon: Icon(
-                                    Icons.send,
-                                    size: 17,
-                                    color: Colors.white,
-                                  )),
-                            )),
-                      ),
-                    ),
+                                  icon: Icon(Icons.close)),
+                              SizedBox(
+                                height: h * 0.1,
+                                child: ChatKeyboard(
+                                    w: w,
+                                    h: h,
+                                    chatController: chatController,
+                                    textController: textController,
+                                    widget: widget),
+                              ),
+                            ],
+                          )
+                        : ChatKeyboard(
+                            w: w,
+                            h: h,
+                            chatController: chatController,
+                            textController: textController,
+                            widget: widget),
                   ],
                 ),
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ChatKeyboard extends StatelessWidget {
+  const ChatKeyboard({
+    super.key,
+    required this.w,
+    required this.h,
+    required this.chatController,
+    required this.textController,
+    required this.widget,
+  });
+
+  final double w;
+  final double h;
+  final ChatController chatController;
+  final TextEditingController textController;
+  final ChatPage widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: w,
+      height: h * 0.1,
+
+      // constraints: BoxConstraints(maxHeight: h * 0.08),
+      margin: EdgeInsets.all(15),
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        // color: Color.fromRGBO(19, 37, 77, 1),
+        color: Colors.red,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+              width: w * 0.1,
+              child: IconButton(
+                  onPressed: () async {
+                    final pickedImg = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (pickedImg != null) {
+                      chatController.updateImageFile(File(pickedImg.path));
+                      // await MyFirebase().sendImageAsChat(
+                      //   File(pickedImg.path),
+                      //   widget.chatRoomId,
+                      //   widget.receiverID,
+                      //   widget.participants);
+                    }
+                  },
+                  icon: Icon(
+                    Icons.photo,
+                    color: Colors.white,
+                    size: 22,
+                  ))),
+          Container(
+            height: h * 0.1,
+            constraints: BoxConstraints(maxWidth: w * 0.73),
+            child: TextFormField(
+              controller: textController,
+              onChanged: (value) {
+                chatController.updateMessage(mesg: value);
+              },
+              style: TextStyle(color: Colors.white.withOpacity(0.5)),
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                  hintText: "Type here",
+                  suffixIcon: CircleAvatar(
+                    radius: 4,
+                    backgroundColor: Color.fromRGBO(73, 208, 238, 1),
+                    child: IconButton(
+                      onPressed: () async {
+                        if (textController.text.isNotEmpty &&
+                            chatController.imageFile.value.path
+                                .trim()
+                                .isEmpty) {
+                          await MyFirebase().sendMessage(
+                              widget.chatRoomId,
+                              textController.text,
+                              widget.receiverID,
+                              widget.participants);
+                          textController.clear();
+                        } else if (textController.text.isEmpty &&
+                            chatController.imageFile.value.path
+                                .trim()
+                                .isNotEmpty) {
+                          await MyFirebase().sendImageAsChat(
+                              chatController.imageFile.value,
+                              widget.chatRoomId,
+                              widget.receiverID,
+                              widget.participants);
+                        } else {
+                          chatController.sendImageAndTextToUser(
+                              chatRoomID: widget.chatRoomId,
+                              receiverID: widget.receiverID,
+                              participants: widget.participants);
+                          textController.clear();
+                        }
+                      },
+                      icon: Icon(
+                        Icons.send,
+                        size: 17,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )),
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 }
