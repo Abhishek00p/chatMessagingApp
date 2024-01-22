@@ -2,14 +2,15 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chatmassegeapp/Firebase/firebase.dart';
+import 'package:chatmassegeapp/constants/colors.dart';
 import 'package:chatmassegeapp/models/chatModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
 import '../getControllers/chatController.dart';
 
 //
@@ -106,42 +107,64 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
+    var userPRofile = '';
     print("chatRoom ID : ${widget.chatRoomId}");
     return Scaffold(
-      backgroundColor: Color.fromRGBO(5, 17, 59, 1),
+      // backgroundColor: Color.fromRGBO(5, 17, 59, 1),
+      backgroundColor: background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Color.fromRGBO(5, 17, 59, 1),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        leading: Icon(Icons.arrow_back_ios, color: Colors.white),
+        // backgroundColor: Color.fromRGBO(5, 17, 59, 1),
+        backgroundColor: background,
+        title: Row(
           children: [
-            Text(
-              "${widget.receiverName}",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            CircleAvatar(
+              radius: h * 0.02,
+              backgroundColor: Colors.white54,
+              child: userPRofile.isEmpty
+                  ? Icon(Icons.person)
+                  : Image.network(userPRofile),
             ),
-            SizedBox(height: 3),
-            StreamBuilder(
-              stream: chatController.fetchReceiverData(
-                  widget.receiverID, widget.chatRoomId, widget.participants),
-              builder: (context, AsyncSnapshot snapshot) {
-                print("lastseen Stream  : ${snapshot.data}");
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Text(
-                    "Loading..",
-                    style: TextStyle(color: Colors.white, fontSize: 11),
-                  );
-                }
-                if (snapshot.hasError || snapshot.data == null) {
-                  return Text("eror");
-                }
-                if (snapshot.data!.isEmpty) {
-                  return SizedBox();
-                }
-                return Text(
-                  snapshot.data.toString(),
-                  style: TextStyle(color: Colors.white, fontSize: 11),
-                );
-              },
+            SizedBox(
+              width: 10,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${widget.receiverName}",
+                  style: GoogleFonts.roboto(
+                      fontSize: 18,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 3),
+                StreamBuilder(
+                  stream: chatController.fetchReceiverData(widget.receiverID,
+                      widget.chatRoomId, widget.participants),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    print("lastseen Stream  : ${snapshot.data}");
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        "Loading..",
+                        style: TextStyle(color: Colors.white, fontSize: 11),
+                      );
+                    }
+                    if (snapshot.hasError || snapshot.data == null) {
+                      return Text("eror");
+                    }
+                    if (snapshot.data!.isEmpty) {
+                      return SizedBox();
+                    }
+                    return Text(
+                      snapshot.data.toString(),
+                      style: TextStyle(color: Colors.white, fontSize: 11),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -202,21 +225,25 @@ class _ChatPageState extends State<ChatPage> {
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       color: !boolValue
-                                          ? Color.fromRGBO(19, 37, 77, 1)
-                                          : Color.fromRGBO(73, 208, 238, 1)),
+                                          ? recieverChatBAckground
+                                          : senderChatBAckground),
                                   child: Center(
                                     child: Row(children: [
                                       Expanded(
                                           child: chatList[ind].image.isEmpty
                                               ? Text(
                                                   "${chatList[ind].text}",
-                                                  style: TextStyle(
-                                                      color: boolValue
-                                                          ? Color.fromRGBO(
-                                                              5, 17, 59, 1)
-                                                          : Colors.white
-                                                              .withOpacity(
-                                                                  0.5)),
+                                                  style: GoogleFonts.roboto(
+                                                    fontSize: 13,
+                                                    color: Colors.white,
+                                                  ),
+                                                  // TextStyle(
+                                                  //     color: boolValue
+                                                  //         ? Color.fromRGBO(
+                                                  //             5, 17, 59, 1)
+                                                  //         : Colors.white
+                                                  //             .withOpacity(
+                                                  //                 0.5)),
                                                   maxLines: 50,
                                                 )
                                               : chatList[ind].text.isEmpty &&
@@ -243,17 +270,23 @@ class _ChatPageState extends State<ChatPage> {
                                                         ),
                                                         Text(
                                                           "${chatList[ind].text}",
-                                                          style: TextStyle(
-                                                              color: boolValue
-                                                                  ? Color
-                                                                      .fromRGBO(
-                                                                          5,
-                                                                          17,
-                                                                          59,
-                                                                          1)
-                                                                  : Colors.white
-                                                                      .withOpacity(
-                                                                          0.5)),
+                                                          style: GoogleFonts
+                                                              .roboto(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .white),
+                                                          // TextStyle(
+                                                          //     color:
+                                                          //     boolValue
+                                                          //         ? Color
+                                                          //             .fromRGBO(
+                                                          //                 5,
+                                                          //                 17,
+                                                          //                 59,
+                                                          //                 1)
+                                                          //         : Colors.white
+                                                          //             .withOpacity(
+                                                          //                 0.5)),
                                                           maxLines: 50,
                                                         )
                                                       ],
@@ -261,13 +294,20 @@ class _ChatPageState extends State<ChatPage> {
                                       SizedBox(
                                         width: 5,
                                       ),
-                                      Text(
-                                          "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",
-                                          style: TextStyle(
-                                              color: boolValue
-                                                  ? Color.fromRGBO(5, 17, 59, 1)
-                                                  : Colors.white
-                                                      .withOpacity(0.5)))
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Text(
+                                            "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",
+                                            style: GoogleFonts.roboto(
+                                                color: Colors.white,
+                                                fontSize: 13)
+                                            // TextStyle(
+                                            //     color: boolValue
+                                            //         ? Color.fromRGBO(5, 17, 59, 1)
+                                            //         : Colors.white
+                                            //             .withOpacity(0.5))
+                                            ),
+                                      )
                                     ]),
                                   ),
                                 ),
@@ -349,15 +389,15 @@ class ChatKeyboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: w,
-      height: h * 0.1,
+      height: h * 0.07,
 
       // constraints: BoxConstraints(maxHeight: h * 0.08),
-      margin: EdgeInsets.all(15),
+      margin: EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         // color: Color.fromRGBO(19, 37, 77, 1),
-        color: Colors.red,
+        color: recieverChatBAckground,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -394,7 +434,7 @@ class ChatKeyboard extends StatelessWidget {
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                  hintText: "Type here",
+                  hintText: "Type here...",
                   suffixIcon: CircleAvatar(
                     radius: 4,
                     backgroundColor: Color.fromRGBO(73, 208, 238, 1),
