@@ -502,6 +502,8 @@ class ChatKeyboard extends StatelessWidget {
                                       participants: widget.participants);
                                   textController.clear();
                                 }
+
+                                chatController.clearStates();
                               },
                         icon: const Icon(
                           Icons.send,

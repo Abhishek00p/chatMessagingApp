@@ -32,6 +32,13 @@ class ChatController extends GetxController {
     }
   }
 
+  clearStates() {
+    showImagePreview.value = false;
+    imageFile.value = File('');
+    enableSendButton.value = false;
+    message.value = '';
+  }
+
   // call firebase function from here
   sendImageAndTextToUser({
     // required File pickedFile,
