@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:chatmassegeapp/Firebase/firebase.dart';
@@ -20,7 +19,8 @@ class ChatPage extends StatefulWidget {
   final receiverName;
   final participants;
   const ChatPage(
-      {required this.chatRoomId,
+      {super.key,
+      required this.chatRoomId,
       required this.receiverID,
       required this.receiverName,
       required this.participants});
@@ -38,13 +38,13 @@ class _ChatPageState extends State<ChatPage> {
         .doc(chatRoomId)
         .get();
     if (value.exists) {
-      final messagesRef = await FirebaseFirestore.instance
+      final messagesRef = FirebaseFirestore.instance
           .collection('chats')
           .doc(chatRoomId)
           .collection('messages');
 
       messagesRef.get().then((querySnapshot) {
-        querySnapshot.docs.forEach((messageDoc) {
+        for (var messageDoc in querySnapshot.docs) {
           final data = messageDoc.data();
           final senderId = data['senderId'];
 
@@ -58,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
               print('Error updating seen status: $error');
             });
           }
-        });
+        }
       });
 
       // change unReadCount
@@ -114,7 +114,9 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: background,
       appBar: AppBar(
         elevation: 0,
-        leading: Icon(Icons.arrow_back_ios, color: Colors.white),
+        leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white)),
         // backgroundColor: Color.fromRGBO(5, 17, 59, 1),
         backgroundColor: background,
         title: Row(
@@ -123,10 +125,10 @@ class _ChatPageState extends State<ChatPage> {
               radius: h * 0.02,
               backgroundColor: Colors.white54,
               child: userPRofile.isEmpty
-                  ? Icon(Icons.person)
+                  ? const Icon(Icons.person)
                   : Image.network(userPRofile),
             ),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
             Column(
@@ -140,27 +142,27 @@ class _ChatPageState extends State<ChatPage> {
                       letterSpacing: 2,
                       fontWeight: FontWeight.w400),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 StreamBuilder(
                   stream: chatController.fetchReceiverData(widget.receiverID,
                       widget.chatRoomId, widget.participants),
                   builder: (context, AsyncSnapshot snapshot) {
                     print("lastseen Stream  : ${snapshot.data}");
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Text(
+                      return const Text(
                         "Loading..",
                         style: TextStyle(color: Colors.white, fontSize: 11),
                       );
                     }
                     if (snapshot.hasError || snapshot.data == null) {
-                      return Text("eror");
+                      return const Text("eror");
                     }
                     if (snapshot.data!.isEmpty) {
-                      return SizedBox();
+                      return const SizedBox();
                     }
                     return Text(
                       snapshot.data.toString(),
-                      style: TextStyle(color: Colors.white, fontSize: 11),
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
                     );
                   },
                 ),
@@ -169,7 +171,7 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      body: Container(
+      body: SizedBox(
         height: h,
         width: w,
         child: Column(
@@ -179,15 +181,18 @@ class _ChatPageState extends State<ChatPage> {
                     stream: MyFirebase().getAllChatsOFRoom(widget.chatRoomId),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
                       if (snapshot.data == null ||
                           snapshot.data!.docs.isEmpty) {
-                        return Center(
-                          child: Text("No chats available"),
+                        return const Center(
+                          child: Text(
+                            "No chats available",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         );
                       }
 
@@ -206,13 +211,13 @@ class _ChatPageState extends State<ChatPage> {
                             chatList.sort(
                                 (a, b) => a.timestamp.compareTo(b.timestamp));
                             return Padding(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               child: Align(
                                 alignment: boolValue
                                     ? Alignment.centerRight
                                     : Alignment.centerLeft,
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 10),
                                   constraints: BoxConstraints(
                                       minHeight: h * 0.04,
@@ -232,7 +237,7 @@ class _ChatPageState extends State<ChatPage> {
                                       Expanded(
                                           child: chatList[ind].image.isEmpty
                                               ? Text(
-                                                  "${chatList[ind].text}",
+                                                  chatList[ind].text,
                                                   style: GoogleFonts.roboto(
                                                     fontSize: 13,
                                                     color: Colors.white,
@@ -251,7 +256,7 @@ class _ChatPageState extends State<ChatPage> {
                                                           .image
                                                           .trim()
                                                           .isNotEmpty
-                                                  ? Container(
+                                                  ? SizedBox(
                                                       height: h * 0.25,
                                                       width: w * 0.4,
                                                       child: Image.network(
@@ -260,7 +265,7 @@ class _ChatPageState extends State<ChatPage> {
                                                     )
                                                   : Column(
                                                       children: [
-                                                        Container(
+                                                        SizedBox(
                                                           height: h * 0.25,
                                                           width: w * 0.4,
                                                           child: Image.network(
@@ -269,7 +274,7 @@ class _ChatPageState extends State<ChatPage> {
                                                               fit: BoxFit.fill),
                                                         ),
                                                         Text(
-                                                          "${chatList[ind].text}",
+                                                          chatList[ind].text,
                                                           style: GoogleFonts
                                                               .roboto(
                                                                   fontSize: 13,
@@ -291,13 +296,14 @@ class _ChatPageState extends State<ChatPage> {
                                                         )
                                                       ],
                                                     )),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 5,
                                       ),
                                       Align(
                                         alignment: Alignment.bottomRight,
                                         child: Text(
-                                            "${DateFormat('h:mm a').format(chatList[ind].timestamp)}",
+                                            DateFormat('h:mm a').format(
+                                                chatList[ind].timestamp),
                                             style: GoogleFonts.roboto(
                                                 color: Colors.white,
                                                 fontSize: 13)
@@ -316,7 +322,7 @@ class _ChatPageState extends State<ChatPage> {
                           });
                     })),
             Obx(
-              () => Container(
+              () => SizedBox(
                 height:
                     chatController.showImagePreview.value ? h * 0.4 : h * 0.1,
                 width: w,
@@ -335,12 +341,19 @@ class _ChatPageState extends State<ChatPage> {
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 10),
+                              const Text(
+                                  'Click on Close button to Deselect File or click on send button to Send the File',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400)),
+                              const SizedBox(height: 10),
                               IconButton(
                                   onPressed: () {
                                     chatController.updateImageFile(null);
                                   },
-                                  icon: Icon(Icons.close)),
+                                  icon: const Icon(Icons.close)),
                               SizedBox(
                                 height: h * 0.1,
                                 child: ChatKeyboard(
@@ -392,8 +405,8 @@ class ChatKeyboard extends StatelessWidget {
       height: h * 0.07,
 
       // constraints: BoxConstraints(maxHeight: h * 0.08),
-      margin: EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
-      padding: EdgeInsets.all(8),
+      margin: const EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         // color: Color.fromRGBO(19, 37, 77, 1),
@@ -402,7 +415,7 @@ class ChatKeyboard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
+          SizedBox(
               width: w * 0.1,
               child: IconButton(
                   onPressed: () async {
@@ -417,7 +430,7 @@ class ChatKeyboard extends StatelessWidget {
                       //   widget.participants);
                     }
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.photo,
                     color: Colors.white,
                     size: 22,
@@ -429,6 +442,11 @@ class ChatKeyboard extends StatelessWidget {
               controller: textController,
               onChanged: (value) {
                 chatController.updateMessage(mesg: value);
+                if (value.trim().isEmpty) {
+                  chatController.updateSendButtonVisibility(false);
+                } else {
+                  chatController.updateSendButtonVisibility(true);
+                }
               },
               style: TextStyle(color: Colors.white.withOpacity(0.5)),
               decoration: InputDecoration(
@@ -437,37 +455,45 @@ class ChatKeyboard extends StatelessWidget {
                   hintText: "Type here...",
                   suffixIcon: CircleAvatar(
                     radius: 4,
-                    backgroundColor: Color.fromRGBO(73, 208, 238, 1),
+                    backgroundColor: !(chatController.enableSendButton.value)
+                        ? Colors.grey
+                        : const Color.fromRGBO(73, 208, 238, 1),
                     child: IconButton(
-                      onPressed: () async {
-                        if (textController.text.isNotEmpty &&
-                            chatController.imageFile.value.path
-                                .trim()
-                                .isEmpty) {
-                          await MyFirebase().sendMessage(
-                              widget.chatRoomId,
-                              textController.text,
-                              widget.receiverID,
-                              widget.participants);
-                          textController.clear();
-                        } else if (textController.text.isEmpty &&
-                            chatController.imageFile.value.path
-                                .trim()
-                                .isNotEmpty) {
-                          await MyFirebase().sendImageAsChat(
-                              chatController.imageFile.value,
-                              widget.chatRoomId,
-                              widget.receiverID,
-                              widget.participants);
-                        } else {
-                          chatController.sendImageAndTextToUser(
-                              chatRoomID: widget.chatRoomId,
-                              receiverID: widget.receiverID,
-                              participants: widget.participants);
-                          textController.clear();
-                        }
-                      },
-                      icon: Icon(
+                      onPressed: !(chatController.enableSendButton.value)
+                          ? () {}
+                          : () async {
+                              chatController.updateImageFile(null);
+
+                              await chatController
+                                  .updateSendButtonVisibility(false);
+                              if (textController.text.isNotEmpty &&
+                                  chatController.imageFile.value.path
+                                      .trim()
+                                      .isEmpty) {
+                                await MyFirebase().sendMessage(
+                                    widget.chatRoomId,
+                                    textController.text,
+                                    widget.receiverID,
+                                    widget.participants);
+                                textController.clear();
+                              } else if (textController.text.isEmpty &&
+                                  chatController.imageFile.value.path
+                                      .trim()
+                                      .isNotEmpty) {
+                                await MyFirebase().sendImageAsChat(
+                                    chatController.imageFile.value,
+                                    widget.chatRoomId,
+                                    widget.receiverID,
+                                    widget.participants);
+                              } else {
+                                chatController.sendImageAndTextToUser(
+                                    chatRoomID: widget.chatRoomId,
+                                    receiverID: widget.receiverID,
+                                    participants: widget.participants);
+                                textController.clear();
+                              }
+                            },
+                      icon: const Icon(
                         Icons.send,
                         size: 17,
                         color: Colors.white,

@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 0.2,
                   ),
                   Row(
@@ -50,9 +50,9 @@ class _LoginPageState extends State<LoginPage> {
                           //     transition: Transition.leftToRightWithFade,
                           //     duration: Duration(seconds: 1));
                         },
-                        child: Container(
+                        child: SizedBox(
                           width: w * 0.2,
-                          child: Column(
+                          child: const Column(
                             children: [
                               Text("Login"),
                               SizedBox(
@@ -67,13 +67,13 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Get.offAll(() => RegisterPage(),
+                          Get.offAll(() => const RegisterPage(),
                               transition: Transition.leftToRightWithFade,
-                              duration: Duration(seconds: 1));
+                              duration: const Duration(seconds: 1));
                         },
-                        child: Container(
+                        child: SizedBox(
                           width: w * 0.2,
-                          child: Column(
+                          child: const Column(
                             children: [
                               Text("Sign Up"),
                               SizedBox(
@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                         fontSize: h * 0.04, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Form(
@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         TextFormField(
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Enter Email',
                             hintStyle: TextStyle(color: Colors.grey),
                             enabledBorder: UnderlineInputBorder(
@@ -127,12 +127,12 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           },
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
                         TextFormField(
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Enter Password',
                             hintStyle: TextStyle(color: Colors.grey),
                             enabledBorder: UnderlineInputBorder(
@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Row(
                     children: [
-                      Icon(Icons.facebook_outlined),
+                      const Icon(Icons.facebook_outlined),
                       InkWell(
                         onTap: () async {
                           MyFirebase().signInWithGoogle();
@@ -193,18 +193,18 @@ class _LoginPageState extends State<LoginPage> {
                               ? Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => HomePage()))
+                                      builder: (context) => const HomePage()))
                               : null;
                         }
                       },
                       child: Container(
-                        margin: EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
                         constraints: BoxConstraints(
                             minHeight: h * 0.04, maxWidth: w * 0.2),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.orange),
-                        child: Center(
+                        child: const Center(
                           child: Icon(
                             Icons.arrow_forward,
                             color: Colors.white,

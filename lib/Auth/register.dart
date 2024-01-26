@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 0.1,
                 ),
                 Row(
@@ -49,13 +49,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     InkWell(
                       onTap: () {
                         Get.delete<LoginSignUpController>();
-                        Get.offAll(() => LoginPage(),
+                        Get.offAll(() => const LoginPage(),
                             transition: Transition.rightToLeftWithFade,
-                            duration: Duration(seconds: 1));
+                            duration: const Duration(seconds: 1));
                       },
-                      child: Container(
+                      child: SizedBox(
                         width: w * 0.2,
-                        child: Column(
+                        child: const Column(
                           children: [
                             Text("Login"),
                             SizedBox(
@@ -77,9 +77,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         //     transition: Transition.leftToRightWithFade,
                         //     duration: Duration(seconds: 1));
                       },
-                      child: Container(
+                      child: SizedBox(
                         width: w * 0.2,
-                        child: Column(
+                        child: const Column(
                           children: [
                             Text("Sign Up"),
                             SizedBox(
@@ -98,7 +98,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: h * 0.1,
                 ),
                 RichText(
-                  text: TextSpan(
+                  text: const TextSpan(
                     style: TextStyle(fontSize: 24.0, color: Colors.black),
                     children: <TextSpan>[
                       TextSpan(
@@ -121,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Enter Name',
                           hintStyle: TextStyle(color: Colors.grey),
                           enabledBorder: UnderlineInputBorder(
@@ -142,11 +142,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
                         },
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Enter Email',
                           hintStyle: TextStyle(color: Colors.grey),
                           enabledBorder: UnderlineInputBorder(
@@ -167,11 +167,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           }
                         },
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(color: Colors.grey),
                           enabledBorder: UnderlineInputBorder(
@@ -191,11 +191,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           return null;
                         },
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Confirm Password',
                           hintStyle: TextStyle(color: Colors.grey),
                           enabledBorder: UnderlineInputBorder(
@@ -230,7 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 Row(
                   children: [
-                    Icon(Icons.facebook_outlined),
+                    const Icon(Icons.facebook_outlined),
                     InkWell(
                       onTap: () {
                         //TODO: Login via Google
@@ -250,7 +250,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   alignment: Alignment.bottomRight,
                   child: InkWell(
                     onTap: () async {
-                      CircularProgressIndicator();
+                      const CircularProgressIndicator();
                       if (_regFormKey.currentState!.validate()) {
                         User? user = await MyFirebase()
                             .registerWithEmailPassword(
@@ -260,18 +260,18 @@ class _RegisterPageState extends State<RegisterPage> {
                         if (user != null) {
                           Get.delete<LoginSignUpController>();
 
-                          Get.to(() => LoginPage());
+                          Get.to(() => const LoginPage());
                         }
                       }
                     },
                     child: Container(
-                      margin: EdgeInsets.all(10),
+                      margin: const EdgeInsets.all(10),
                       constraints: BoxConstraints(
                           minHeight: h * 0.04, maxWidth: w * 0.2),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.deepPurple[300]),
-                      child: Center(
+                      child: const Center(
                         child: Icon(
                           Icons.arrow_forward,
                           color: Colors.white,

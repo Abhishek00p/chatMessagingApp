@@ -1,4 +1,3 @@
-import 'package:chatmassegeapp/models/userModel.dart';
 import 'package:get/get.dart';
 
 class UserListController extends GetxController{

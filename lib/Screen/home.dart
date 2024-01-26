@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final userListController = Get.put(UserListController());
     return Scaffold(
       backgroundColor: background,
-      body: Container(
+      body: SizedBox(
         height: h,
         width: w,
         child:
@@ -86,8 +86,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Meowsenger",
+                  const Text(
+                    "The Chat App",
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                   IconButton(
@@ -98,15 +98,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => LoginPage()));
+                                builder: (context) => const LoginPage()));
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.logout_outlined,
                         color: Colors.white,
                       ))
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               // Text("Hello, $userNAME ",style: ,)
@@ -114,8 +114,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Container(
                 height: h * 0.06,
                 width: w,
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                margin: EdgeInsets.all(15),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.white),
                     borderRadius: BorderRadius.circular(10),
@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 child: TextField(
                   style: TextStyle(color: Colors.white.withOpacity(0.6)),
                   decoration: InputDecoration(
-                    hintText: "Search Here...",
+                    hintText: "Search User Here...     Tip: 'komal'",
                     hintStyle: GoogleFonts.roboto(
                         fontSize: 15,
                         color: Colors.white,
@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     //   Icons.search,
                     //   color: Colors.white,
                     // ),
-                    suffixIcon: Icon(
+                    suffixIcon: const Icon(
                       Icons.search,
                       color: Colors.white,
                     ),
@@ -159,10 +159,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 stream: MyFirebase().getAllUserList(),
                 builder: (context, AsyncSnapshot snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                   if (snapshot.hasError || snapshot.data == null) {
-                    return SizedBox();
+                    return const SizedBox();
                   }
 
                   final usersDocs = snapshot.data!.docs;
@@ -181,8 +181,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   return Visibility(
                     visible: !userListController.searchTextEmpty.value,
                     child: Container(
-                      padding: EdgeInsets.all(8.0),
-                      color: Colors.grey[200],
+                      padding: const EdgeInsets.all(8.0),
+                      color: Colors.grey[200]?.withOpacity(0.2),
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount:
@@ -216,147 +216,162 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 },
               ),
               Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                stream: MyFirebase().getAllChatRoomList(),
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError || snapshot.data == null) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-                  if (snapshot.data!.docs.isEmpty) {
-                    return Text("empty");
-                  }
-                  final List usersDocs = snapshot.data!.docs;
-                  //
-                  final chatroomList = usersDocs
-                      .map((e) =>
-                          ChatRoom.fromJson(e.data() as Map<String, dynamic>))
-                      .toList();
-                  return Container(
-                    height: h * 0.7,
-                    width: w,
-                    child: ListView.builder(
-                        itemCount: chatroomList.length,
-                        itemBuilder: (context, index) {
-                          var thisChatRoom = chatroomList[index];
-                          var currUSerID =
-                              FirebaseAuth.instance.currentUser!.uid;
-                          var isCurrentUserFirstParticipant =
-                              chatroomList[index].participants!.first ==
-                                  currUSerID;
-                          var userID = isCurrentUserFirstParticipant
-                              ? chatroomList[index].participants!.last
-                              : chatroomList[index].participants!.first;
-                          var userName = isCurrentUserFirstParticipant
-                              ? chatroomList[index].user2Name
-                              : chatroomList[index].user1Name;
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: MyFirebase().getAllChatRoomList(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError || snapshot.data == null) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (snapshot.data!.docs.isEmpty) {
+                      return const Text("empty");
+                    }
+                    final List usersDocs = snapshot.data!.docs;
+                    //
+                    final chatroomList = usersDocs
+                        .map((e) =>
+                            ChatRoom.fromJson(e.data() as Map<String, dynamic>))
+                        .toList();
+                    return SizedBox(
+                      height: h * 0.7,
+                      width: w,
+                      child: ListView.builder(
+                          itemCount: chatroomList.length,
+                          itemBuilder: (context, index) {
+                            var thisChatRoom = chatroomList[index];
+                            var currUSerID =
+                                FirebaseAuth.instance.currentUser!.uid;
+                            var isCurrentUserFirstParticipant =
+                                chatroomList[index].participants!.first ==
+                                    currUSerID;
+                            var userID = isCurrentUserFirstParticipant
+                                ? chatroomList[index].participants!.last
+                                : chatroomList[index].participants!.first;
+                            var userName = isCurrentUserFirstParticipant
+                                ? chatroomList[index].user2Name
+                                : chatroomList[index].user1Name;
 
-                          // var userProfile = isCurrentUserFirstParticipant? //TODO: need to implement
-                          var userPRofile = '';
-                          print("user receiver name : $userName");
-                          //
-                          var unReadcount = isCurrentUserFirstParticipant
-                              ? chatroomList[index].unreadCountOfUser1
-                              : chatroomList[index].unreadCountOfUser2;
+                            // var userProfile = isCurrentUserFirstParticipant? //TODO: need to implement
+                            var userPRofile = '';
+                            print("user receiver name : $userName");
+                            //
+                            var unReadcount = isCurrentUserFirstParticipant
+                                ? chatroomList[index].unreadCountOfUser1
+                                : chatroomList[index].unreadCountOfUser2;
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: InkWell(
-                              onTap: () {
-                                Get.to(() => ChatPage(
-                                      chatRoomId:
-                                          chatroomList[index].chatroomId,
-                                      receiverID: userID,
-                                      receiverName: userName,
-                                      participants:
-                                          chatroomList[index].participants,
-                                    ));
-                              },
-                              child: Container(
-                                height: h * 0.07,
-                                // color: Colors.red,
-                                width: w,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: h * 0.03,
-                                      backgroundColor: Colors.white54,
-                                      child: userPRofile.isEmpty
-                                          ? Icon(Icons.person)
-                                          : Image.network(userPRofile),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Container(
-                                      width: w * 0.5,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text(userName ?? "",
-                                              style: GoogleFonts.roboto(
-                                                  fontSize: 15,
-                                                  color: Colors.white)
-                                              //  TextStyle(
-                                              //     color: Colors.white
-                                              //         .withOpacity(0.8))
-                                              ),
-                                          Text(
-                                            chatroomList[index].lastMessage ??
-                                                "",
-                                            style: GoogleFonts.roboto(
-                                                fontSize: 13,
-                                                color: Colors.white),
-                                            // TextStyle(
-                                            //     color: Colors.white
-                                            //         .withOpacity(0.4)),
-                                          ),
-                                        ],
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  Get.to(() => ChatPage(
+                                        chatRoomId:
+                                            chatroomList[index].chatroomId,
+                                        receiverID: userID,
+                                        receiverName: userName,
+                                        participants:
+                                            chatroomList[index].participants,
+                                      ));
+                                },
+                                child: SizedBox(
+                                  height: h * 0.07,
+                                  // color: Colors.red,
+                                  width: w,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: h * 0.03,
+                                        backgroundColor: Colors.white54,
+                                        child: userPRofile.isEmpty
+                                            ? const Icon(Icons.person)
+                                            : Image.network(userPRofile),
                                       ),
-                                    ),
-                                    Text(
-                                      DateFormat('h:mm a').format(
-                                          chatroomList[index]
-                                              .lastMessageTimestamp!
-                                              .toDate()),
-                                      style: GoogleFonts.roboto(
-                                          fontSize: 15, color: Colors.white),
-                                      //                                             TextStyle(
-                                      // color:
-                                      //     Colors.white.withOpacity(0.6))
-                                    ),
-                                    SizedBox(
-                                      width: 3,
-                                    ),
-                                    unReadcount == 0
-                                        ? SizedBox()
-                                        : CircleAvatar(
-                                            radius: 8,
-                                            backgroundColor: Colors.greenAccent,
-                                            child: Center(
-                                                child: Text(
-                                              "$unReadcount",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            )),
-                                          )
-                                  ],
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      SizedBox(
+                                        width: w * 0.5,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Text(userName ?? "",
+                                                style: GoogleFonts.roboto(
+                                                    fontSize: 15,
+                                                    color: Colors.white)
+                                                //  TextStyle(
+                                                //     color: Colors.white
+                                                //         .withOpacity(0.8))
+                                                ),
+                                            Text(
+                                              chatroomList[index].lastMessage ??
+                                                  "",
+                                              style: GoogleFonts.roboto(
+                                                  fontSize: 13,
+                                                  color: Colors.white),
+                                              // TextStyle(
+                                              //     color: Colors.white
+                                              //         .withOpacity(0.4)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Text(
+                                        DateFormat('h:mm a').format(
+                                            chatroomList[index]
+                                                .lastMessageTimestamp!
+                                                .toDate()),
+                                        style: GoogleFonts.roboto(
+                                            fontSize: 15, color: Colors.white),
+                                        //                                             TextStyle(
+                                        // color:
+                                        //     Colors.white.withOpacity(0.6))
+                                      ),
+                                      const SizedBox(
+                                        width: 3,
+                                      ),
+                                      unReadcount == 0
+                                          ? const SizedBox()
+                                          : CircleAvatar(
+                                              radius: 8,
+                                              backgroundColor:
+                                                  Colors.greenAccent,
+                                              child: Center(
+                                                  child: Text(
+                                                "$unReadcount",
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12),
+                                              )),
+                                            )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                  );
-                },
-              )),
+                            );
+                          }),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  'Developed by : Abhishek H Prajapat',
+                  style: TextStyle(
+                      color: Colors.white54,
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12),
+                ),
+              )
             ],
           ),
         ),

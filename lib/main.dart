@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home:
-          FirebaseAuth.instance.currentUser != null ? HomePage() : LoginPage(),
+          FirebaseAuth.instance.currentUser != null ? const HomePage() : const LoginPage(),
     );
   }
 }

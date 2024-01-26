@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:chatmassegeapp/Screen/home.dart';
+import 'package:chatmassegeapp/getControllers/chatController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -82,7 +82,7 @@ class MyFirebase {
           "isOnline": true,
           "id": value.id
         });
-        Get.offAll(() => HomePage());
+        Get.offAll(() => const HomePage());
       } else {
         Fluttertoast.showToast(msg: "Failed to login");
       }
@@ -232,6 +232,8 @@ class MyFirebase {
 
   sendMessage(String chatRoomID, String text, String receiverID,
       List participants) async {
+    ChatController chatController = Get.find<ChatController>();
+
     try {
       final userID = FirebaseAuth.instance.currentUser!.uid;
       //
@@ -295,10 +297,11 @@ class MyFirebase {
           "updatedAt": DateTime.now(),
         });
       }
-
+      chatController.updateSendButtonVisibility(true);
       Fluttertoast.showToast(msg: "Message Sent");
     } catch (e) {
       print("eeeeeeeeeeeee- $e");
+      chatController.updateSendButtonVisibility(true);
     }
   }
 
@@ -346,6 +349,7 @@ class MyFirebase {
       List participants) async {
     final FirebaseStorage storage = FirebaseStorage.instance;
     final Reference chatImagesRef = storage.ref().child('chat_images');
+    ChatController chatController = Get.find<ChatController>();
 
     final imageFile = File(pickedFile.path);
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
@@ -419,8 +423,11 @@ class MyFirebase {
           "updatedAt": DateTime.now(),
         });
       }
+      chatController.updateSendButtonVisibility(true);
       Fluttertoast.showToast(msg: "Message Sent");
     } catch (e) {
+      chatController.updateSendButtonVisibility(true);
+
       print("eeeeeeeeeee- $e");
     }
   }
@@ -433,6 +440,8 @@ class MyFirebase {
     required String textMessage,
   }) async {
     Fluttertoast.showToast(msg: 'processing image..');
+    ChatController chatController = Get.find<ChatController>();
+
     final String imageUrl = await getDownloadLinkForChatFile(file: pickedFile);
     final snap = await FirebaseFirestore.instance
         .collection("chats")
@@ -499,11 +508,17 @@ class MyFirebase {
           "isSeen": false,
           "updatedAt": DateTime.now(),
         });
+        chatController.updateSendButtonVisibility(true);
+
         return true;
       } else {
+        chatController.updateSendButtonVisibility(true);
+
         return false;
       }
     } catch (e) {
+      chatController.updateSendButtonVisibility(true);
+
       debugPrint('Failed to send image and text :$e');
       return false;
     }

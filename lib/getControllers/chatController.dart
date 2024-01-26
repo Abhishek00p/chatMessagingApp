@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:chatmassegeapp/Firebase/firebase.dart';
@@ -11,10 +10,15 @@ class ChatController extends GetxController {
   String receiverLastSeen = 'Loading...';
   Rx<String> message = ''.obs;
   RxBool showImagePreview = false.obs;
+  RxBool enableSendButton = false.obs;
   Rx<File> imageFile = Rx(File(''));
 
   updateMessage({required String mesg}) {
     message.value = mesg;
+  }
+
+  updateSendButtonVisibility(bool value) {
+    enableSendButton.value = value;
   }
 
   updateImageFile(File? file) {
@@ -36,7 +40,7 @@ class ChatController extends GetxController {
   }) async {
     try {
       // Fluttertoast.showToast(msg: 'processing image and message');
-
+      updateSendButtonVisibility(false);
       final value = await MyFirebase().sendImageAndText(
           pickedFile: imageFile.value,
           chatRoomID: chatRoomID,
@@ -48,9 +52,8 @@ class ChatController extends GetxController {
         showImagePreview.value = false;
         message.value = '';
         imageFile.value = File('');
-      }else{
+      } else {
         Fluttertoast.showToast(msg: 'Failed to sent message');
-
       }
     } catch (e) {
       Fluttertoast.showToast(msg: 'Failed to send message');
@@ -102,10 +105,5 @@ class ChatController extends GetxController {
       print('Error fetching receiver data: $e');
       yield 'Error';
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
