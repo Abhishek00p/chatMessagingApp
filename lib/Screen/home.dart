@@ -178,38 +178,43 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   }
 
                   userListController.listOFUSer.value = userList;
-                  return Visibility(
-                    visible: !userListController.searchTextEmpty.value,
-                    child: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      color: Colors.grey[200]?.withOpacity(0.2),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount:
-                            userListController.listOfUSerNAmes.value.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              var userID =
-                                  userListController.listOfUSerNAmes[index].id;
-                              var currUSerID =
-                                  FirebaseAuth.instance.currentUser!.uid;
-                              var sortedlist = [userID, currUSerID]..sort();
+                  return Obx(
+                    () => Visibility(
+                      visible: !userListController.searchTextEmpty.value,
+                      child: Container(
+                        constraints: BoxConstraints(maxHeight: h * 0.35),
+                        padding: const EdgeInsets.all(8.0),
+                        color: Colors.grey[200]?.withOpacity(0.2),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount:
+                              userListController.listOfUSerNAmes.value.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                var userID = userListController
+                                    .listOfUSerNAmes[index].id;
+                                var currUSerID =
+                                    FirebaseAuth.instance.currentUser!.uid;
+                                var sortedlist = [userID, currUSerID]..sort();
 
-                              Get.to(() => ChatPage(
-                                  chatRoomId: sortedlist.join("-"),
-                                  receiverID: userID,
-                                  receiverName: userListController
-                                      .listOfUSerNAmes[index].name,
-                                  participants: sortedlist));
-                            },
-                            child: ListTile(
-                              title: Text(userListController
-                                      .listOfUSerNAmes.value[index].name ??
-                                  ""),
-                            ),
-                          );
-                        },
+                                Get.to(() => ChatPage(
+                                    chatRoomId: sortedlist.join("-"),
+                                    receiverID: userID,
+                                    receiverName: userListController
+                                        .listOfUSerNAmes[index].name,
+                                    participants: sortedlist));
+                              },
+                              child: ListTile(
+                                title: Text(
+                                  userListController
+                                          .listOfUSerNAmes.value[index].name ??
+                                      'userWith no name',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -226,7 +231,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     }
                     if (snapshot.data!.docs.isEmpty) {
-                      return const Text("empty");
+                      return const Center(
+                        child: Text(
+                          "Start a new chat",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300),
+                        ),
+                      );
                     }
                     final List usersDocs = snapshot.data!.docs;
                     //

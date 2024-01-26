@@ -25,8 +25,10 @@ class ChatController extends GetxController {
     if (file != null) {
       showImagePreview.value = true;
       imageFile.value = file;
+      enableSendButton.value = true;
     } else {
       showImagePreview.value = false;
+      enableSendButton.value = false;
     }
   }
 

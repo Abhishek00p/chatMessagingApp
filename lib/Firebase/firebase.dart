@@ -423,9 +423,12 @@ class MyFirebase {
           "updatedAt": DateTime.now(),
         });
       }
+      chatController.updateImageFile(null);
       chatController.updateSendButtonVisibility(true);
+
       Fluttertoast.showToast(msg: "Message Sent");
     } catch (e) {
+      chatController.updateImageFile(null);
       chatController.updateSendButtonVisibility(true);
 
       print("eeeeeeeeeee- $e");
@@ -508,15 +511,18 @@ class MyFirebase {
           "isSeen": false,
           "updatedAt": DateTime.now(),
         });
+        chatController.updateImageFile(null);
         chatController.updateSendButtonVisibility(true);
 
         return true;
       } else {
+        chatController.updateImageFile(null);
         chatController.updateSendButtonVisibility(true);
 
         return false;
       }
     } catch (e) {
+      chatController.updateImageFile(null);
       chatController.updateSendButtonVisibility(true);
 
       debugPrint('Failed to send image and text :$e');

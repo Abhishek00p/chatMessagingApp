@@ -172,7 +172,7 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
       body: SizedBox(
-        height: h,
+        height: h - kToolbarHeight,
         width: w,
         child: Column(
           children: [
@@ -324,7 +324,7 @@ class _ChatPageState extends State<ChatPage> {
             Obx(
               () => SizedBox(
                 height:
-                    chatController.showImagePreview.value ? h * 0.4 : h * 0.1,
+                    chatController.showImagePreview.value ? h * 0.45 : h * 0.1,
                 width: w,
                 child: Stack(
                   children: [
@@ -342,12 +342,17 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              const Text(
-                                  'Click on Close button to Deselect File or click on send button to Send the File',
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                child: Text(
+                                  'Click on Close button to Deselect File ',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400)),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300),
+                                ),
+                              ),
                               const SizedBox(height: 10),
                               IconButton(
                                   onPressed: () {
@@ -359,16 +364,19 @@ class _ChatPageState extends State<ChatPage> {
                                 child: ChatKeyboard(
                                     w: w,
                                     h: h,
-                                    chatController: chatController,
+                                    // chatController: chatController,
                                     textController: textController,
                                     widget: widget),
                               ),
+                              // const SizedBox(
+                              //   height: 10,
+                              // ),
                             ],
                           )
                         : ChatKeyboard(
                             w: w,
                             h: h,
-                            chatController: chatController,
+                            // chatController: chatController,
                             textController: textController,
                             widget: widget),
                   ],
@@ -383,21 +391,22 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatKeyboard extends StatelessWidget {
-  const ChatKeyboard({
+  ChatKeyboard({
     super.key,
     required this.w,
     required this.h,
-    required this.chatController,
+    // required this.chatController,
     required this.textController,
     required this.widget,
   });
 
   final double w;
   final double h;
-  final ChatController chatController;
+  // final ChatController chatController;
   final TextEditingController textController;
   final ChatPage widget;
 
+  final ChatController chatController = Get.find<ChatController>();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -412,97 +421,99 @@ class ChatKeyboard extends StatelessWidget {
         // color: Color.fromRGBO(19, 37, 77, 1),
         color: recieverChatBAckground,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-              width: w * 0.1,
-              child: IconButton(
-                  onPressed: () async {
-                    final pickedImg = await ImagePicker()
-                        .pickImage(source: ImageSource.gallery);
-                    if (pickedImg != null) {
-                      chatController.updateImageFile(File(pickedImg.path));
-                      // await MyFirebase().sendImageAsChat(
-                      //   File(pickedImg.path),
-                      //   widget.chatRoomId,
-                      //   widget.receiverID,
-                      //   widget.participants);
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.photo,
-                    color: Colors.white,
-                    size: 22,
-                  ))),
-          Container(
-            height: h * 0.1,
-            constraints: BoxConstraints(maxWidth: w * 0.73),
-            child: TextFormField(
-              controller: textController,
-              onChanged: (value) {
-                chatController.updateMessage(mesg: value);
-                if (value.trim().isEmpty) {
-                  chatController.updateSendButtonVisibility(false);
-                } else {
-                  chatController.updateSendButtonVisibility(true);
-                }
-              },
-              style: TextStyle(color: Colors.white.withOpacity(0.5)),
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                  hintText: "Type here...",
-                  suffixIcon: CircleAvatar(
-                    radius: 4,
-                    backgroundColor: !(chatController.enableSendButton.value)
-                        ? Colors.grey
-                        : const Color.fromRGBO(73, 208, 238, 1),
-                    child: IconButton(
-                      onPressed: !(chatController.enableSendButton.value)
-                          ? () {}
-                          : () async {
-                              chatController.updateImageFile(null);
+      child: Obx(
+        () => Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+                width: w * 0.1,
+                child: IconButton(
+                    onPressed: () async {
+                      final pickedImg = await ImagePicker()
+                          .pickImage(source: ImageSource.gallery);
+                      if (pickedImg != null) {
+                        chatController.updateImageFile(File(pickedImg.path));
+                        // await MyFirebase().sendImageAsChat(
+                        //   File(pickedImg.path),
+                        //   widget.chatRoomId,
+                        //   widget.receiverID,
+                        //   widget.participants);
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.photo,
+                      color: Colors.white,
+                      size: 22,
+                    ))),
+            Container(
+              height: h * 0.1,
+              constraints: BoxConstraints(maxWidth: w * 0.73),
+              child: TextFormField(
+                controller: textController,
+                onChanged: (value) {
+                  chatController.updateMessage(mesg: value);
+                  if (value.trim().isEmpty) {
+                    chatController.updateSendButtonVisibility(false);
+                  } else {
+                    chatController.updateSendButtonVisibility(true);
+                  }
+                },
+                style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    hintText: "Type here...",
+                    suffixIcon: CircleAvatar(
+                      radius: 4,
+                      backgroundColor: !(chatController.enableSendButton.value)
+                          ? Colors.grey
+                          : const Color.fromRGBO(73, 208, 238, 1),
+                      child: IconButton(
+                        onPressed: !(chatController.enableSendButton.value)
+                            ? () {}
+                            : () async {
+                                chatController.updateImageFile(null);
 
-                              await chatController
-                                  .updateSendButtonVisibility(false);
-                              if (textController.text.isNotEmpty &&
-                                  chatController.imageFile.value.path
-                                      .trim()
-                                      .isEmpty) {
-                                await MyFirebase().sendMessage(
-                                    widget.chatRoomId,
-                                    textController.text,
-                                    widget.receiverID,
-                                    widget.participants);
-                                textController.clear();
-                              } else if (textController.text.isEmpty &&
-                                  chatController.imageFile.value.path
-                                      .trim()
-                                      .isNotEmpty) {
-                                await MyFirebase().sendImageAsChat(
-                                    chatController.imageFile.value,
-                                    widget.chatRoomId,
-                                    widget.receiverID,
-                                    widget.participants);
-                              } else {
-                                chatController.sendImageAndTextToUser(
-                                    chatRoomID: widget.chatRoomId,
-                                    receiverID: widget.receiverID,
-                                    participants: widget.participants);
-                                textController.clear();
-                              }
-                            },
-                      icon: const Icon(
-                        Icons.send,
-                        size: 17,
-                        color: Colors.white,
+                                await chatController
+                                    .updateSendButtonVisibility(false);
+                                if (textController.text.isNotEmpty &&
+                                    chatController.imageFile.value.path
+                                        .trim()
+                                        .isEmpty) {
+                                  await MyFirebase().sendMessage(
+                                      widget.chatRoomId,
+                                      textController.text,
+                                      widget.receiverID,
+                                      widget.participants);
+                                  textController.clear();
+                                } else if (textController.text.isEmpty &&
+                                    chatController.imageFile.value.path
+                                        .trim()
+                                        .isNotEmpty) {
+                                  await MyFirebase().sendImageAsChat(
+                                      chatController.imageFile.value,
+                                      widget.chatRoomId,
+                                      widget.receiverID,
+                                      widget.participants);
+                                } else {
+                                  chatController.sendImageAndTextToUser(
+                                      chatRoomID: widget.chatRoomId,
+                                      receiverID: widget.receiverID,
+                                      participants: widget.participants);
+                                  textController.clear();
+                                }
+                              },
+                        icon: const Icon(
+                          Icons.send,
+                          size: 17,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                  )),
+                    )),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
